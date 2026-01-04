@@ -1,0 +1,32 @@
+PatternMD: Chronic Illness Pattern Detection System
+Brand Identity & Positioning
+Tagline: "Find your patterns, not just your symptoms."
+
+Brand voice: Clinical but compassionate, data-driven but human. Think "trusted lab partner" not "cold medical device."
+
+Visual identity:
+
+Colors: Deep blue (#1E40AF) for trust, teal (#0D9488) for health/data, soft orange (#F59E0B) for alerts/insights
+
+Logo: Abstract waveform + medical cross, or DNA helix + chart lines
+
+Typography: Clean, highly readable (Inter or Source Sans Pro)
+
+Refined Project Structure with New Name
+Core Philosophy Shift
+Unlike WebMD which focuses on diagnosis (what you have), PatternMD focuses on pattern recognition (how your condition behaves). This is a crucial distinction both medically and legally.
+
+Feature Renaming with Medical Metaphors
+Daily Checkup → Quick logging interface
+
+Symptom Lab → Detailed tracking & analysis
+
+Treatment Trials → Medication/supplement effectiveness tracking
+
+Environment Scan → Weather/air quality correlation
+
+Doctor's Brief → PDF report generation
+
+Health Forecast → Predictive alerts
+
+Case Studies → Anonymous community insights (like "Patients like you report...")
