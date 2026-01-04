@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { medicationsService } from "@/services/medicationsService";
-import type { Medication, MedicationAdherence } from "@/types";
+import type { Medication, MedicationAdherence, MedicationLog } from "@/types";
 
 export const useMedications = () => {
 	const [medications, setMedications] = useState<Medication[]>([]);
+	const [medicationLogs, setMedicationLogs] = useState<MedicationLog[]>([]);
 	const [adherence, setAdherence] = useState<MedicationAdherence[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -20,6 +21,15 @@ export const useMedications = () => {
 		}
 	};
 
+	const fetchMedicationLogs = async () => {
+		try {
+			const data = await medicationsService.getAllMedicationLogs();
+			setMedicationLogs(data);
+		} catch (err: any) {
+			console.error("Failed to fetch medication logs:", err);
+		}
+	};
+
 	const fetchAdherence = async () => {
 		try {
 			const data = await medicationsService.getAdherence();
@@ -31,6 +41,7 @@ export const useMedications = () => {
 
 	useEffect(() => {
 		fetchMedications();
+		fetchMedicationLogs();
 		fetchAdherence();
 	}, []);
 
@@ -78,6 +89,7 @@ export const useMedications = () => {
 
 	return {
 		medications,
+		medicationLogs,
 		adherence,
 		loading,
 		error,

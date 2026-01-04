@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { symptomsService } from "@/services/symptomsService";
 import type { SymptomLog, SymptomStats } from "@/types";
 
-export const useSymptoms = (startDate?: string, endDate?: string) => {
+export const useSymptoms = (startDate?: string, endDate?: string, enabled = true) => {
 	const [symptoms, setSymptoms] = useState<SymptomLog[]>([]);
 	const [stats, setStats] = useState<SymptomStats | null>(null);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(enabled);
 	const [error, setError] = useState<string | null>(null);
 
 	const fetchSymptoms = async () => {
+		if (!enabled) return;
 		try {
 			setLoading(true);
 			const response = await symptomsService.getSymptoms({
@@ -25,6 +26,7 @@ export const useSymptoms = (startDate?: string, endDate?: string) => {
 	};
 
 	const fetchStats = async () => {
+		if (!enabled) return;
 		try {
 			const statsData = await symptomsService.getStats(startDate, endDate);
 			setStats(statsData);
@@ -34,9 +36,11 @@ export const useSymptoms = (startDate?: string, endDate?: string) => {
 	};
 
 	useEffect(() => {
-		fetchSymptoms();
-		fetchStats();
-	}, [startDate, endDate]);
+		if (enabled) {
+			fetchSymptoms();
+			fetchStats();
+		}
+	}, [startDate, endDate, enabled]);
 
 	const addSymptom = async (symptom: Omit<SymptomLog, "id" | "userId">) => {
 		try {

@@ -25,6 +25,11 @@ export const medicationsService = {
 		await api.delete(`/medications/${id}`);
 	},
 
+	async getAllMedicationLogs(): Promise<MedicationLog[]> {
+		const response = await api.get<ApiResponse<MedicationLog[]>>("/medications/logs");
+		return response.data.data!;
+	},
+
 	async logDose(medicationId: string, taken: boolean, notes?: string): Promise<MedicationLog> {
 		const response = await api.post<ApiResponse<MedicationLog>>(`/medications/${medicationId}/log`, {
 			taken,
