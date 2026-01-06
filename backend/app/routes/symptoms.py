@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
 from app import db
 from app.models.symptom import SymptomLog
@@ -20,9 +20,13 @@ def get_symptoms(current_user):
         
         # Apply date filters if provided
         if start_date:
-            query = query.filter(SymptomLog.timestamp >= datetime.fromisoformat(start_date))
+            # treat start_date as beginning of that day
+            start_dt = datetime.fromisoformat(start_date)
+            query = query.filter(SymptomLog.timestamp >= start_dt)
         if end_date:
-            query = query.filter(SymptomLog.timestamp <= datetime.fromisoformat(end_date))
+            # treat end_date as inclusive of the full day by advancing to the next day
+            end_dt = datetime.fromisoformat(end_date) + timedelta(days=1)
+            query = query.filter(SymptomLog.timestamp < end_dt)
         
         # Order by most recent first
         query = query.order_by(SymptomLog.timestamp.desc())
@@ -190,9 +194,11 @@ def get_symptom_stats(current_user):
         query = SymptomLog.query.filter_by(user_id=current_user.id)
         
         if start_date:
-            query = query.filter(SymptomLog.timestamp >= datetime.fromisoformat(start_date))
+            start_dt = datetime.fromisoformat(start_date)
+            query = query.filter(SymptomLog.timestamp >= start_dt)
         if end_date:
-            query = query.filter(SymptomLog.timestamp <= datetime.fromisoformat(end_date))
+            end_dt = datetime.fromisoformat(end_date) + timedelta(days=1)
+            query = query.filter(SymptomLog.timestamp < end_dt)
         
         symptoms = query.all()
         

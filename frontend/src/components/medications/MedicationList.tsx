@@ -1,6 +1,6 @@
 import { Card } from "@/components/common/Card";
 import type { Medication, MedicationAdherence } from "@/types";
-import { PencilSquareIcon, TrashIcon, CalendarIcon, BeakerIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, BeakerIcon } from "@heroicons/react/24/outline";
 
 interface CardProps {
 	medication: Medication;
@@ -11,59 +11,58 @@ interface CardProps {
 
 export const MedicationCard = ({ medication, adherence, onEdit, onDelete }: CardProps) => {
 	return (
-		<Card className="p-5 border-l-4 border-l-primary-500">
-			<div className="flex justify-between items-start">
-				<div className="flex gap-3">
-					<div className="p-2 bg-primary-50 rounded-lg">
-						<BeakerIcon className="w-5 h-5 text-primary-600" />
+		<div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-100 last:border-0 group">
+			<div className="flex items-center gap-4 min-w-0 flex-1">
+				<div
+					className={`w-2 h-8 rounded-full shrink-0 ${medication.active ? "bg-primary-500" : "bg-gray-300"}`}
+				/>
+				<div className="min-w-0 flex-1 flex items-center gap-6">
+					<div className="min-w-40">
+						<h3 className="font-bold text-gray-900 text-base truncate">{medication.name}</h3>
 					</div>
-					<div>
-						<h3 className="font-bold text-gray-900 text-lg">{medication.name}</h3>
-						<p className="text-primary-700 font-medium">{medication.dosage}</p>
+					<div className="hidden sm:block text-primary-700 text-sm font-medium truncate">
+						{medication.dosage} • {medication.frequency}
 					</div>
+					{medication.purpose && (
+						<p className="hidden md:block text-xs text-gray-400 italic truncate max-w-xs ml-auto pr-6">
+							"{medication.purpose}"
+						</p>
+					)}
 				</div>
-				<div className="flex gap-1">
+			</div>
+
+			<div className="flex items-center gap-4">
+				{adherence && (
+					<span
+						className={`px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${
+							adherence.adherenceRate >= 80
+								? "bg-green-100 text-green-700"
+								: adherence.adherenceRate >= 50
+								? "bg-yellow-100 text-yellow-700"
+								: "bg-red-100 text-red-700"
+						}`}
+					>
+						{adherence.adherenceRate}%
+					</span>
+				)}
+				<div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
 					<button
 						onClick={() => onEdit(medication)}
-						className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors cursor-pointer"
+						className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors cursor-pointer"
 						title="Edit"
 					>
 						<PencilSquareIcon className="w-5 h-5" />
 					</button>
 					<button
 						onClick={() => onDelete(medication.id)}
-						className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+						className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
 						title="Delete"
 					>
 						<TrashIcon className="w-5 h-5" />
 					</button>
 				</div>
 			</div>
-
-			<div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-				<div className="flex items-center gap-2 text-gray-600">
-					<CalendarIcon className="w-4 h-4" />
-					<span>{medication.frequency}</span>
-				</div>
-				{adherence && (
-					<div className="text-right">
-						<span
-							className={`px-2 py-1 rounded-full text-xs font-bold ${
-								adherence.adherenceRate >= 80
-									? "bg-green-100 text-green-700"
-									: adherence.adherenceRate >= 50
-									? "bg-yellow-100 text-yellow-700"
-									: "bg-red-100 text-red-700"
-							}`}
-						>
-							{adherence.adherenceRate}% Adherence
-						</span>
-					</div>
-				)}
-			</div>
-
-			{medication.purpose && <p className="mt-3 text-sm text-gray-500 italic">"{medication.purpose}"</p>}
-		</Card>
+		</div>
 	);
 };
 
@@ -82,11 +81,11 @@ export const MedicationList = ({ medications, adherence, onEdit, onDelete }: Lis
 		<div className="space-y-8">
 			{active.length > 0 && (
 				<div>
-					<h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-						<div className="w-2 h-2 bg-green-500 rounded-full"></div>
+					<h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-wider">
+						<div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
 						Active Medications
 					</h2>
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+					<Card className="divide-y divide-gray-50 overflow-hidden">
 						{active.map((med) => (
 							<MedicationCard
 								key={med.id}
@@ -96,17 +95,17 @@ export const MedicationList = ({ medications, adherence, onEdit, onDelete }: Lis
 								onDelete={onDelete}
 							/>
 						))}
-					</div>
+					</Card>
 				</div>
 			)}
 
 			{inactive.length > 0 && (
 				<div>
-					<h2 className="text-lg font-semibold text-gray-600 mb-4 flex items-center gap-2">
-						<div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-						Inactive / Past Medications
+					<h2 className="text-sm font-semibold text-gray-500 mb-4 flex items-center gap-2 uppercase tracking-wider">
+						<div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+						Inactive
 					</h2>
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 opacity-75">
+					<Card className="divide-y divide-gray-50 overflow-hidden opacity-75">
 						{inactive.map((med) => (
 							<MedicationCard
 								key={med.id}
@@ -116,7 +115,7 @@ export const MedicationList = ({ medications, adherence, onEdit, onDelete }: Lis
 								onDelete={onDelete}
 							/>
 						))}
-					</div>
+					</Card>
 				</div>
 			)}
 

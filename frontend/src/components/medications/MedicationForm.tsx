@@ -80,10 +80,16 @@ export const MedicationForm = ({ initialData, onSubmit, onCancel, isSubmitting }
 			</div>
 
 			<div className="flex gap-3 pt-2">
-				<Button type="button" variant="secondary" onClick={onCancel} className="flex-1" disabled={isSubmitting}>
+				<Button
+					type="button"
+					variant="secondary"
+					onClick={onCancel}
+					className="flex-1 cursor-pointer"
+					disabled={isSubmitting}
+				>
 					Cancel
 				</Button>
-				<Button type="submit" isLoading={isSubmitting} className="flex-1">
+				<Button type="submit" isLoading={isSubmitting} className="flex-1 cursor-pointer">
 					{initialData ? "Update Medication" : "Add Medication"}
 				</Button>
 			</div>

@@ -1,18 +1,27 @@
 import { useState } from "react";
 import { useMedications } from "@/hooks/useMedications";
 import { useUIStore } from "@/store/uiStore";
-import { MedicationSummary } from "@/components/medications/MedicationSummary";
 import { MedicationList } from "@/components/medications/MedicationList";
 import { MedicationForm } from "@/components/medications/MedicationForm";
+import { DoseTracker } from "@/components/medications/DoseTracker";
 import { Modal } from "@/components/common/Modal";
 import { Button } from "@/components/common/Button";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import type { Medication, MedicationForm as MedicationFormType } from "@/types";
+import { MedicationSummary } from "@/components/medications/MedicationSummary";
 
 export const Medications = () => {
-	const { medications, adherence, loading, error, addMedication, updateMedication, deleteMedication } =
-		useMedications();
+	const {
+		medications,
+		medicationLogs,
+		adherence,
+		loading,
+		error,
+		addMedication,
+		updateMedication,
+		deleteMedication,
+	} = useMedications();
 
 	const addToast = useUIStore((state) => state.addToast);
 
@@ -74,7 +83,7 @@ export const Medications = () => {
 					<h1 className="text-3xl font-bold text-gray-900">Medications</h1>
 					<p className="text-gray-600 mt-2">Manage your treatment plan and track adherence</p>
 				</div>
-				<Button onClick={handleAddClick} className="flex items-center gap-2">
+				<Button onClick={handleAddClick} className="flex items-center gap-2 cursor-pointer">
 					<PlusIcon className="w-5 h-5" />
 					Add Medication
 				</Button>
@@ -86,7 +95,7 @@ export const Medications = () => {
 				</div>
 			)}
 
-			<MedicationSummary adherence={adherence} />
+			<MedicationSummary medications={medications} adherence={adherence} />
 
 			<MedicationList
 				medications={medications}
@@ -94,6 +103,8 @@ export const Medications = () => {
 				onEdit={handleEditClick}
 				onDelete={handleDeleteClick}
 			/>
+
+			<DoseTracker medications={medications} logs={medicationLogs} adherence={adherence} />
 
 			<Modal
 				isOpen={isModalOpen}

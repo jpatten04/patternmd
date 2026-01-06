@@ -32,9 +32,7 @@ export const SymptomLogForm = ({ onSuccess, onCancel }: Props) => {
 	});
 
 	// Get unique symptom names for autocomplete (only if symptoms were fetched)
-	const pastSymptomNames = symptoms.length > 0 
-		? Array.from(new Set(symptoms.map((s) => s.symptomName)))
-		: [];
+	const pastSymptomNames = symptoms.length > 0 ? Array.from(new Set(symptoms.map((s) => s.symptomName))) : [];
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -48,9 +46,9 @@ export const SymptomLogForm = ({ onSuccess, onCancel }: Props) => {
 			addToast({ type: "success", message: "Symptom logged successfully" });
 			onSuccess?.();
 		} catch (error: any) {
-			addToast({ 
-				type: "error", 
-				message: error.response?.data?.error || "Failed to log symptom" 
+			addToast({
+				type: "error",
+				message: error.response?.data?.error || "Failed to log symptom",
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -76,9 +74,7 @@ export const SymptomLogForm = ({ onSuccess, onCancel }: Props) => {
 			</div>
 
 			<div>
-				<label className="block text-sm font-medium text-gray-700 mb-1">
-					Severity: {formData.severity}/10
-				</label>
+				<label className="block text-sm font-medium text-gray-700 mb-1">Severity: {formData.severity}/10</label>
 				<input
 					type="range"
 					min="1"
@@ -99,7 +95,12 @@ export const SymptomLogForm = ({ onSuccess, onCancel }: Props) => {
 					label="Duration (minutes)"
 					type="number"
 					value={formData.durationMinutes || ""}
-					onChange={(e) => setFormData({ ...formData, durationMinutes: e.target.value ? Number(e.target.value) : undefined })}
+					onChange={(e) =>
+						setFormData({
+							...formData,
+							durationMinutes: e.target.value ? Number(e.target.value) : undefined,
+						})
+					}
 					placeholder="Optional"
 				/>
 				<Input
@@ -131,11 +132,11 @@ export const SymptomLogForm = ({ onSuccess, onCancel }: Props) => {
 
 			<div className="flex gap-3 pt-2">
 				{onCancel && (
-					<Button type="button" variant="secondary" onClick={onCancel} className="flex-1">
+					<Button type="button" variant="secondary" onClick={onCancel} className="flex-1 cursor-pointer">
 						Cancel
 					</Button>
 				)}
-				<Button type="submit" isLoading={isSubmitting} className="flex-1">
+				<Button type="submit" isLoading={isSubmitting} className="flex-1 cursor-pointer">
 					Log Symptom
 				</Button>
 			</div>

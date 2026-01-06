@@ -44,6 +44,16 @@ export const useAlerts = () => {
 		}
 	};
 
+	const markAllAsRead = async () => {
+		try {
+			await alertsService.markAllAsRead();
+			setAlerts(alerts.map((a) => ({ ...a, isRead: true })));
+		} catch (err: any) {
+			setError(err.message);
+			throw err;
+		}
+	};
+
 	const dismissAlert = async (id: string) => {
 		try {
 			await alertsService.dismissAlert(id);
@@ -70,6 +80,7 @@ export const useAlerts = () => {
 		loading,
 		error,
 		markAsRead,
+		markAllAsRead,
 		dismissAlert,
 		updateSettings,
 		refetch: fetchAlerts,

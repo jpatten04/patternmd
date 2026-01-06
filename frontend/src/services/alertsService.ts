@@ -12,6 +12,10 @@ export const alertsService = {
 		return response.data.data!;
 	},
 
+	async markAllAsRead(): Promise<void> {
+		await api.put("/alerts/mark-all-read");
+	},
+
 	async dismissAlert(id: string): Promise<void> {
 		await api.delete(`/alerts/${id}`);
 	},

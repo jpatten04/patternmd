@@ -2,58 +2,38 @@ import { useState, useEffect } from "react";
 import { environmentService } from "@/services/environmentService";
 import type { EnvironmentData } from "@/types";
 
-export const useEnvironment = (startDate?: string, endDate?: string) => {
-	const [current, setCurrent] = useState<EnvironmentData | null>(null);
-	const [history, setHistory] = useState<EnvironmentData[]>([]);
-	const [loading, setLoading] = useState(true);
+export const useEnvironment = (startDate?: string, endDate?: string, enabled = true) => {
+	const [environmentLogs, setEnvironmentLogs] = useState<EnvironmentData[]>([]);
+	const [loading, setLoading] = useState(enabled);
 	const [error, setError] = useState<string | null>(null);
 
-	const fetchCurrent = async () => {
+	const fetchEnvironmentLogs = async () => {
+		if (!enabled) return;
 		try {
 			setLoading(true);
-			const data = await environmentService.getCurrent();
-			setCurrent(data);
+			const response = await environmentService.getEnvironmentLogs({
+				startDate,
+				endDate,
+				pageSize: 100,
+			});
+			setEnvironmentLogs(response.items);
 		} catch (err: any) {
 			setError(err.message);
 		} finally {
 			setLoading(false);
-		}
-	};
-
-	const fetchHistory = async () => {
-		try {
-			const data = await environmentService.getHistory(startDate, endDate);
-			setHistory(data);
-		} catch (err: any) {
-			console.error("Failed to fetch history:", err);
 		}
 	};
 
 	useEffect(() => {
-		fetchCurrent();
-		fetchHistory();
-	}, [startDate, endDate]);
-
-	const refresh = async () => {
-		try {
-			setLoading(true);
-			const data = await environmentService.refresh();
-			setCurrent(data);
-			await fetchHistory();
-		} catch (err: any) {
-			setError(err.message);
-			throw err;
-		} finally {
-			setLoading(false);
+		if (enabled) {
+			fetchEnvironmentLogs();
 		}
-	};
+	}, [startDate, endDate, enabled]);
 
 	return {
-		current,
-		history,
+		environmentLogs,
 		loading,
 		error,
-		refresh,
-		refetch: fetchCurrent,
+		refetch: fetchEnvironmentLogs,
 	};
 };

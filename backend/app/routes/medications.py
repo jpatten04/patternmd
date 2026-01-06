@@ -4,16 +4,67 @@ from datetime import datetime, timezone, date
 import uuid
 from app import db
 from app.models.medication import Medication, MedicationLog
+from app.models.alert import Alert
 from app.utils.decorators import token_required
 from sqlalchemy import func
 
 medications_bp = Blueprint('medications', __name__)
+
+def check_for_missed_doses(user):
+    """Simple check for missed doses for 'once daily' medications"""
+    try:
+        # Respect user settings
+        alert_settings = user.preferences.get('alertSettings', {})
+        if not alert_settings.get('missedDoseAlerts', True):
+            return
+
+        today = date.today()
+        # Find active medications that are 'once daily'
+        active_meds = Medication.query.filter_by(user_id=user.id, active=True).all()
+        
+        for med in active_meds:
+            if 'daily' in med.frequency.lower():
+                # Check if there is a log for today
+                start_of_today = datetime.combine(today, datetime.min.time())
+                log_exists = MedicationLog.query.filter(
+                    MedicationLog.medication_id == med.id,
+                    MedicationLog.timestamp >= start_of_today
+                ).first()
+                
+                if not log_exists and datetime.now().hour >= 12: # If past noon and no log
+                    # Check if an alert already exists for today
+                    existing_alert = Alert.query.filter(
+                        Alert.user_id == user.id,
+                        Alert.alert_type == 'medication',
+                        Alert.message.like(f"%{med.name}%"),
+                        Alert.timestamp >= start_of_today
+                    ).first()
+                    
+                    if not existing_alert:
+                        new_alert = Alert(
+                            id=str(uuid.uuid4()),
+                            user_id=user.id,
+                            alert_type='medication',
+                            message=f"Missed dose reminder: Have you taken your {med.name} today?",
+                            severity='medium',
+                            timestamp=datetime.now(timezone.utc),
+                            is_read=False
+                        )
+                        db.session.add(new_alert)
+        
+        db.session.commit()
+    except Exception as e:
+        print(f"Error checking missed doses: {e}")
+        db.session.rollback()
 
 @medications_bp.route('', methods=['GET'])
 @token_required
 def get_medications(current_user):
     """Get all medications for the current user"""
     try:
+        # Trigger reminder check
+        check_for_missed_doses(current_user)
+        
         # Query medications
         medications = Medication.query.filter_by(user_id=current_user.id).order_by(Medication.start_date.desc()).all()
         
@@ -201,6 +252,13 @@ def delete_medication(current_user, medication_id):
                 'error': 'Medication not found'
             }), 404
         
+        # Delete related alerts
+        Alert.query.filter(
+            Alert.user_id == current_user.id,
+            Alert.alert_type == 'medication',
+            Alert.message.like(f"%{medication.name}%")
+        ).delete(synchronize_session=False)
+
         db.session.delete(medication)
         db.session.commit()
         

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
 import { HeartIcon, BeakerIcon, CakeIcon, BoltIcon, FaceSmileIcon } from "@heroicons/react/24/outline";
+import { Modal } from "@/components/common/Modal";
 import { SymptomLogForm } from "./SymptomLogForm";
 import { MedicationLogForm } from "./MedicationLogForm";
 import { FoodLogForm } from "./FoodLogForm";
@@ -24,58 +24,43 @@ const logTypes = [
 export const QuickLogModal = ({ isOpen, onClose }: Props) => {
 	const [selectedType, setSelectedType] = useState<LogType>(logTypes[0].type);
 
-	if (!isOpen) return null;
-
 	return (
-		<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-			<div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-				<div className="flex items-center justify-between mb-6">
-					<h2 className="text-xl font-semibold text-gray-900">Quick Log</h2>
-					<button
-						onClick={onClose}
-						className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-					>
-						<XMarkIcon className="w-6 h-6" />
-					</button>
+		<Modal isOpen={isOpen} onClose={onClose} title="Quick Log" size="md">
+			<div className="space-y-6">
+				{/* Type Selector */}
+				<div>
+					<label className="block text-sm font-medium text-gray-700 mb-2">What do you want to log?</label>
+					<div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+						{logTypes.map((type) => {
+							const Icon = type.icon;
+							return (
+								<button
+									key={type.type}
+									type="button"
+									onClick={() => setSelectedType(type.type)}
+									className={`flex flex-col items-center p-2 rounded-lg border-2 transition-all cursor-pointer ${
+										selectedType === type.type
+											? "border-primary-600 bg-primary-50"
+											: "border-gray-200 hover:border-gray-300"
+									}`}
+								>
+									<Icon className={`w-5 h-5 ${type.color} mb-1`} />
+									<span className="text-[10px] font-medium text-gray-700">{type.label}</span>
+								</button>
+							);
+						})}
+					</div>
 				</div>
 
-				<div className="space-y-6">
-					{/* Type Selector */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">What do you want to log?</label>
-						<div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-							{logTypes.map((type) => {
-								const Icon = type.icon;
-								return (
-									<button
-										key={type.type}
-										type="button"
-										onClick={() => setSelectedType(type.type)}
-										className={`flex flex-col items-center p-2 rounded-lg border-2 transition-all cursor-pointer ${
-											selectedType === type.type
-												? "border-primary-600 bg-primary-50"
-												: "border-gray-200 hover:border-gray-300"
-										}`}
-									>
-										<Icon className={`w-5 h-5 ${type.color} mb-1`} />
-										<span className="text-[10px] font-medium text-gray-700">{type.label}</span>
-									</button>
-								);
-							})}
-						</div>
-					</div>
-
-					{/* Forms */}
-					<div className="mt-6 border-t pt-6">
-						{selectedType === "symptom" && <SymptomLogForm onSuccess={onClose} onCancel={onClose} />}
-						{selectedType === "medication" && <MedicationLogForm onSuccess={onClose} onCancel={onClose} />}
-						{selectedType === "food" && <FoodLogForm onSuccess={onClose} onCancel={onClose} />}
-						{selectedType === "activity" && <ActivityLogForm onSuccess={onClose} onCancel={onClose} />}
-						{selectedType === "mood" && <MoodLogForm onSuccess={onClose} onCancel={onClose} />}
-					</div>
+				{/* Forms */}
+				<div className="mt-6 border-t pt-6">
+					{selectedType === "symptom" && <SymptomLogForm onSuccess={onClose} onCancel={onClose} />}
+					{selectedType === "medication" && <MedicationLogForm onSuccess={onClose} onCancel={onClose} />}
+					{selectedType === "food" && <FoodLogForm onSuccess={onClose} onCancel={onClose} />}
+					{selectedType === "activity" && <ActivityLogForm onSuccess={onClose} onCancel={onClose} />}
+					{selectedType === "mood" && <MoodLogForm onSuccess={onClose} onCancel={onClose} />}
 				</div>
 			</div>
-		</div>
+		</Modal>
 	);
 };
-

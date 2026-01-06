@@ -11,8 +11,18 @@ interface Props {
 }
 
 const COMMON_EMOTIONS = [
-	"Happy", "Sad", "Anxious", "Calm", "Angry", "Energetic", 
-	"Tired", "Stressed", "Frustrated", "Excited", "Nervous", "Content"
+	"Happy",
+	"Sad",
+	"Anxious",
+	"Calm",
+	"Angry",
+	"Energetic",
+	"Tired",
+	"Stressed",
+	"Frustrated",
+	"Excited",
+	"Nervous",
+	"Content",
 ];
 
 export const MoodLogForm = ({ onSuccess, onCancel }: Props) => {
@@ -46,9 +56,9 @@ export const MoodLogForm = ({ onSuccess, onCancel }: Props) => {
 			addToast({ type: "success", message: "Mood logged successfully" });
 			onSuccess?.();
 		} catch (error: any) {
-			addToast({ 
-				type: "error", 
-				message: error.response?.data?.error || "Failed to log mood" 
+			addToast({
+				type: "error",
+				message: error.response?.data?.error || "Failed to log mood",
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -126,11 +136,11 @@ export const MoodLogForm = ({ onSuccess, onCancel }: Props) => {
 
 			<div className="flex gap-3 pt-2">
 				{onCancel && (
-					<Button type="button" variant="secondary" onClick={onCancel} className="flex-1">
+					<Button type="button" variant="secondary" onClick={onCancel} className="flex-1 cursor-pointer">
 						Cancel
 					</Button>
 				)}
-				<Button type="submit" isLoading={isSubmitting} className="flex-1">
+				<Button type="submit" isLoading={isSubmitting} className="flex-1 cursor-pointer">
 					Log Mood
 				</Button>
 			</div>

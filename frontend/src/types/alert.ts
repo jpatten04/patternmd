@@ -10,10 +10,11 @@ export interface Alert {
 }
 
 export interface AlertSettings {
-	enablePredictions: boolean;
-	enableMedicationReminders: boolean;
-	enableWeatherAlerts: boolean;
-	severityThreshold: "low" | "medium" | "high";
+	missedDoseAlerts: boolean;
+	highSeverityAlerts: boolean;
+	patternDiscoveryAlerts: boolean;
+	environmentAlerts: boolean;
+	notificationMethod: 'app' | 'email' | 'both';
 }
 
 export type AlertSeverity = "low" | "medium" | "high";

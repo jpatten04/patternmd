@@ -42,9 +42,9 @@ export const ActivityLogForm = ({ onSuccess, onCancel }: Props) => {
 			addToast({ type: "success", message: "Activity logged successfully" });
 			onSuccess?.();
 		} catch (error: any) {
-			addToast({ 
-				type: "error", 
-				message: error.response?.data?.error || "Failed to log activity" 
+			addToast({
+				type: "error",
+				message: error.response?.data?.error || "Failed to log activity",
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -106,11 +106,11 @@ export const ActivityLogForm = ({ onSuccess, onCancel }: Props) => {
 
 			<div className="flex gap-3 pt-2">
 				{onCancel && (
-					<Button type="button" variant="secondary" onClick={onCancel} className="flex-1">
+					<Button type="button" variant="secondary" onClick={onCancel} className="flex-1 cursor-pointer">
 						Cancel
 					</Button>
 				)}
-				<Button type="submit" isLoading={isSubmitting} className="flex-1">
+				<Button type="submit" isLoading={isSubmitting} className="flex-1 cursor-pointer">
 					Log Activity
 				</Button>
 			</div>

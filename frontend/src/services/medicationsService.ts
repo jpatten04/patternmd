@@ -30,10 +30,11 @@ export const medicationsService = {
 		return response.data.data!;
 	},
 
-	async logDose(medicationId: string, taken: boolean, notes?: string): Promise<MedicationLog> {
+	async logDose(medicationId: string, taken: boolean, notes?: string, timestamp?: string): Promise<MedicationLog> {
 		const response = await api.post<ApiResponse<MedicationLog>>(`/medications/${medicationId}/log`, {
 			taken,
 			notes,
+			timestamp,
 		});
 		return response.data.data!;
 	},

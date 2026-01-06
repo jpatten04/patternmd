@@ -1,16 +1,16 @@
 import { useState, useMemo } from "react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { format, subDays, isWithinInterval, parseISO } from "date-fns";
+import { format, subDays, isWithinInterval, parseISO, endOfDay } from "date-fns";
 import { Card } from "@/components/common/Card";
 import { Button } from "@/components/common/Button";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
-import { 
-	ChartBarIcon, 
-	Squares2X2Icon, 
-	ClockIcon, 
+import {
+	ChartBarIcon,
+	Squares2X2Icon,
+	ClockIcon,
 	ArrowDownTrayIcon,
 	FunnelIcon,
-	LinkIcon
+	LinkIcon,
 } from "@heroicons/react/24/outline";
 
 // Components
@@ -42,7 +42,10 @@ export const Tracking = () => {
 	});
 
 	// Data fetching
-	const { symptoms, loading: symptomsLoading } = useSymptoms(filters.dateRange?.startDate, filters.dateRange?.endDate);
+	const { symptoms, loading: symptomsLoading } = useSymptoms(
+		filters.dateRange?.startDate,
+		filters.dateRange?.endDate
+	);
 	const { medicationLogs, medications } = useMedications();
 	const { foodLogs } = useFood(filters.dateRange?.startDate, filters.dateRange?.endDate);
 	const { activityLogs } = useActivity(filters.dateRange?.startDate, filters.dateRange?.endDate);
@@ -54,10 +57,9 @@ export const Tracking = () => {
 	// Filtered Data
 	const filteredSymptoms = useMemo(() => {
 		return symptoms.filter((s) => {
-			const severityMatch = s.severity >= (filters.severityRange?.[0] || 1) && 
-								 s.severity <= (filters.severityRange?.[1] || 10);
-			const typeMatch = filters.symptomTypes?.length === 0 || 
-							 filters.symptomTypes?.includes(s.symptomName);
+			const severityMatch =
+				s.severity >= (filters.severityRange?.[0] || 1) && s.severity <= (filters.severityRange?.[1] || 10);
+			const typeMatch = filters.symptomTypes?.length === 0 || filters.symptomTypes?.includes(s.symptomName);
 			return severityMatch && typeMatch;
 		});
 	}, [symptoms, filters]);
@@ -73,11 +75,11 @@ export const Tracking = () => {
 				details: s.notes,
 			})),
 			...medicationLogs.map((m) => {
-				const med = medications.find(med => med.id === m.medicationId);
+				const med = medications.find((med) => med.id === m.medicationId);
 				return {
 					id: m.id,
 					type: "medication",
-					title: `${med?.name || 'Medication'} - ${m.taken ? 'Taken' : 'Missed'}`,
+					title: `${med?.name || "Medication"} - ${m.taken ? "Taken" : "Missed"}`,
 					timestamp: m.timestamp,
 					details: m.notes,
 				};
@@ -107,17 +109,17 @@ export const Tracking = () => {
 
 		// Final filter by date range for timeline items (since some might not be pre-filtered by hook)
 		const start = parseISO(filters.dateRange!.startDate);
-		const end = parseISO(filters.dateRange!.endDate);
-		
-		return items.filter(item => {
-			const date = parseISO(item.timestamp);
-			return isWithinInterval(date, { start, end });
-		}).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+		const end = endOfDay(parseISO(filters.dateRange!.endDate));
+
+		return items
+			.filter((item) => {
+				const date = parseISO(item.timestamp);
+				return isWithinInterval(date, { start, end });
+			})
+			.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 	}, [filteredSymptoms, medicationLogs, medications, foodLogs, activityLogs, moodLogs, filters.dateRange]);
 
-	const symptomNames = useMemo(() => 
-		Array.from(new Set(symptoms.map((s) => s.symptomName))), 
-	[symptoms]);
+	const symptomNames = useMemo(() => Array.from(new Set(symptoms.map((s) => s.symptomName))), [symptoms]);
 
 	const tabs = [
 		{ name: "Overview", icon: Squares2X2Icon },
@@ -136,11 +138,13 @@ export const Tracking = () => {
 					<p className="text-gray-600 mt-2">Visualize your symptoms and discover patterns</p>
 				</div>
 				<div className="flex gap-2">
-					<Button 
-						variant="secondary" 
+					<Button
+						variant="secondary"
 						size="sm"
 						onClick={() => setIsFilterOpen(!isFilterOpen)}
-						className={`flex items-center gap-2 ${isFilterOpen ? 'bg-primary-50 border-primary-200 text-primary-700' : ''}`}
+						className={`flex items-center gap-2 ${
+							isFilterOpen ? "bg-primary-50 border-primary-200 text-primary-700" : ""
+						}`}
 					>
 						<FunnelIcon className="w-4 h-4" />
 						Filters
@@ -154,11 +158,7 @@ export const Tracking = () => {
 
 			{isFilterOpen && (
 				<Card className="bg-white border-primary-100 shadow-md">
-					<FilterPanel 
-						filters={filters}
-						onFilterChange={setFilters}
-						symptomNames={symptomNames}
-					/>
+					<FilterPanel filters={filters} onFilterChange={setFilters} symptomNames={symptomNames} />
 				</Card>
 			)}
 
@@ -169,9 +169,7 @@ export const Tracking = () => {
 							key={tab.name}
 							className={({ selected }) =>
 								`w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium leading-5 rounded-lg transition-all cursor-pointer focus:outline-none
-								${selected 
-									? "bg-white text-primary-700 shadow" 
-									: "text-gray-600 hover:text-gray-900 hover:bg-white/50"}`
+								${selected ? "bg-white text-primary-700 shadow" : "text-gray-600 hover:text-gray-900 hover:bg-white/50"}`
 							}
 						>
 							<tab.icon className="w-4 h-4" />
@@ -190,7 +188,7 @@ export const Tracking = () => {
 							</Card>
 						</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-							{patterns.slice(0, 3).map(pattern => (
+							{patterns.slice(0, 3).map((pattern) => (
 								<PatternCard key={pattern.id} pattern={pattern} />
 							))}
 						</div>
@@ -203,9 +201,7 @@ export const Tracking = () => {
 					<TabPanel>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							{patterns.length > 0 ? (
-								patterns.map(pattern => (
-									<PatternCard key={pattern.id} pattern={pattern} />
-								))
+								patterns.map((pattern) => <PatternCard key={pattern.id} pattern={pattern} />)
 							) : (
 								<div className="col-span-full text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
 									No patterns discovered yet. Keep logging to see insights!

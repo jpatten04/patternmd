@@ -77,10 +77,11 @@ export const useMedications = () => {
 		}
 	};
 
-	const logDose = async (medicationId: string, taken: boolean, notes?: string) => {
+	const logDose = async (medicationId: string, taken: boolean, notes?: string, timestamp?: string) => {
 		try {
-			await medicationsService.logDose(medicationId, taken, notes);
+			await medicationsService.logDose(medicationId, taken, notes, timestamp);
 			fetchAdherence(); // Refresh adherence data
+			fetchMedicationLogs(); // Refresh logs to update dashboard/timeline
 		} catch (err: any) {
 			setError(err.message);
 			throw err;

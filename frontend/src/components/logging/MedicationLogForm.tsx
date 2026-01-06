@@ -34,14 +34,19 @@ export const MedicationLogForm = ({ onSuccess, onCancel }: Props) => {
 
 		setIsSubmitting(true);
 		try {
-			// Note: The service expects 'taken' as a boolean
-			await logDose(selectedMedId, status === "taken", notes);
+			// Note: The service expects 'taken' as a boolean and handles optional timestamp
+			await logDose(
+				selectedMedId,
+				status === "taken",
+				notes,
+				new Date(timestamp).toISOString()
+			);
 			addToast({ type: "success", message: "Dose logged successfully" });
 			onSuccess?.();
 		} catch (error: any) {
-			addToast({ 
-				type: "error", 
-				message: error.response?.data?.error || "Failed to log dose" 
+			addToast({
+				type: "error",
+				message: error.response?.data?.error || "Failed to log dose",
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -57,14 +62,18 @@ export const MedicationLogForm = ({ onSuccess, onCancel }: Props) => {
 			<div className="text-center py-4">
 				<p className="text-gray-500 mb-4">No active medications found.</p>
 				<div className="flex flex-col gap-2">
-					<Link 
-						to="/medications" 
+					<Link
+						to="/medications"
 						onClick={onSuccess}
 						className="inline-flex justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
 					>
 						Add a Medication
 					</Link>
-					{onCancel && <Button onClick={onCancel} variant="secondary">Close</Button>}
+					{onCancel && (
+						<Button onClick={onCancel} variant="secondary" className="cursor-pointer">
+							Close
+						</Button>
+					)}
 				</div>
 			</div>
 		);
@@ -81,11 +90,13 @@ export const MedicationLogForm = ({ onSuccess, onCancel }: Props) => {
 					required
 				>
 					<option value="">Select a medication...</option>
-					{medications.filter(m => m.active).map((med) => (
-						<option key={med.id} value={med.id}>
-							{med.name} ({med.dosage})
-						</option>
-					))}
+					{medications
+						.filter((m) => m.active)
+						.map((med) => (
+							<option key={med.id} value={med.id}>
+								{med.name} ({med.dosage})
+							</option>
+						))}
 				</select>
 			</div>
 
@@ -141,11 +152,11 @@ export const MedicationLogForm = ({ onSuccess, onCancel }: Props) => {
 
 			<div className="flex gap-3 pt-2">
 				{onCancel && (
-					<Button type="button" variant="secondary" onClick={onCancel} className="flex-1">
+					<Button type="button" variant="secondary" onClick={onCancel} className="flex-1 cursor-pointer">
 						Cancel
 					</Button>
 				)}
-				<Button type="submit" isLoading={isSubmitting} className="flex-1">
+				<Button type="submit" isLoading={isSubmitting} className="flex-1 cursor-pointer">
 					Log Dose
 				</Button>
 			</div>

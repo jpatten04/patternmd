@@ -9,6 +9,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     name = db.Column(db.String(100), nullable=False)
+    home_location = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     preferences = db.Column(db.JSON, default={})
 
@@ -34,6 +35,7 @@ class User(db.Model):
             'id': self.id,
             'email': self.email,
             'name': self.name,
+            'homeLocation': self.home_location,
             'createdAt': self.created_at.isoformat(),
             'preferences': self.preferences
         }
