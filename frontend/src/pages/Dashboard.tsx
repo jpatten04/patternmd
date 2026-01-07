@@ -21,7 +21,7 @@ export const Dashboard = () => {
 	const { foodLogs, loading: foodLoading } = useFood();
 	const { activityLogs, loading: activityLoading } = useActivity();
 	const { moodLogs, loading: moodLoading } = useMood();
-	const { patterns, loading: patternsLoading } = usePatterns();
+	const { correlations, loading: patternsLoading } = usePatterns();
 	const { alerts, loading: alertsLoading } = useAlerts();
 	const { environmentLogs, loading: envLoading, refetch: refetchEnv } = useEnvironment();
 
@@ -50,13 +50,13 @@ export const Dashboard = () => {
 		checkAndAutoLog();
 	}, [user, environmentLogs, envLoading, refetchEnv]);
 
-	const isLoading = 
-		symptomsLoading || 
-		medsLoading || 
-		foodLoading || 
-		activityLoading || 
-		moodLoading || 
-		patternsLoading || 
+	const isLoading =
+		symptomsLoading ||
+		medsLoading ||
+		foodLoading ||
+		activityLoading ||
+		moodLoading ||
+		patternsLoading ||
 		alertsLoading ||
 		envLoading;
 
@@ -75,16 +75,16 @@ export const Dashboard = () => {
 		}
 	};
 
-	const todayLogsCount = 
-		(symptoms || []).filter(s => isToday(s.timestamp)).length +
-		(medicationLogs || []).filter(m => isToday(m.timestamp)).length +
-		(foodLogs || []).filter(f => isToday(f.timestamp)).length +
-		(activityLogs || []).filter(a => isToday(a.timestamp)).length +
-		(moodLogs || []).filter(m => isToday(m.timestamp)).length;
+	const todayLogsCount =
+		(symptoms || []).filter((s) => isToday(s.timestamp)).length +
+		(medicationLogs || []).filter((m) => isToday(m.timestamp)).length +
+		(foodLogs || []).filter((f) => isToday(f.timestamp)).length +
+		(activityLogs || []).filter((a) => isToday(a.timestamp)).length +
+		(moodLogs || []).filter((m) => isToday(m.timestamp)).length;
 
 	const activeMedsCount = medications.filter((m) => m.active).length;
 	const recentSymptoms = symptoms.slice(0, 5);
-	const recentAlerts = alerts.slice(0, 3);
+	const todaysAlerts = alerts.filter((a) => isToday(a.timestamp));
 
 	return (
 		<div className="space-y-6">
@@ -118,7 +118,7 @@ export const Dashboard = () => {
 						<span className="text-sm font-medium text-gray-500">Patterns</span>
 						<ChartBarIcon className="w-5 h-5 text-green-600" />
 					</div>
-					<div className="text-2xl font-bold text-gray-900">{patterns.length}</div>
+					<div className="text-2xl font-bold text-gray-900">{correlations.length}</div>
 					<div className="text-xs text-gray-500 mt-1">Insights discovered</div>
 				</Card>
 
@@ -172,10 +172,10 @@ export const Dashboard = () => {
 				</Card>
 
 				{/* Recent Alerts */}
-				<Card title="Recent Alerts">
-					{recentAlerts.length > 0 ? (
+				<Card title="Today's Alerts">
+					{todaysAlerts.length > 0 ? (
 						<div className="space-y-4">
-							{recentAlerts.map((alert) => (
+							{todaysAlerts.map((alert) => (
 								<div
 									key={alert.id}
 									className="flex gap-3 p-3 bg-red-50 rounded-lg border border-red-100"
@@ -193,7 +193,7 @@ export const Dashboard = () => {
 						</div>
 					) : (
 						<div className="text-center py-8 text-gray-500">
-							<p>All clear! No recent alerts.</p>
+							<p>All clear! No alerts today.</p>
 						</div>
 					)}
 				</Card>

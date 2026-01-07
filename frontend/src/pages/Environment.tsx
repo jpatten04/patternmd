@@ -21,7 +21,6 @@ import type { User } from "@/types";
 export const Environment = () => {
 	const { environmentLogs, loading, error, refetch } = useEnvironment();
 	const addToast = useUIStore((state) => state.addToast);
-
 	const [user, setUser] = useState<User | null>(null);
 	const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 	const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);

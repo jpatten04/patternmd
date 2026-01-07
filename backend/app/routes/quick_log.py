@@ -52,7 +52,7 @@ def quick_log(current_user):
                 id=str(uuid.uuid4()),
                 medication_id=medication_id,
                 user_id=current_user.id,
-                status=log_data.get('status', 'taken'),
+                taken=log_data.get('taken', True),
                 notes=log_data.get('notes'),
                 timestamp=datetime.now(timezone.utc)
             )

@@ -9,6 +9,7 @@ import {
 	DocumentTextIcon,
 	AcademicCapIcon,
 	Cog6ToothIcon,
+	QuestionMarkCircleIcon,
 	ArrowRightEndOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 
@@ -56,7 +57,7 @@ export const Sidebar = () => {
 						to={item.href}
 						end={item.href === "/"}
 						className={({ isActive }) =>
-							`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colosr ${
+							`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
 								isActive ? "bg-primary-50 text-primary-700" : "text-gray-700 hover:bg-gray-50"
 							}`
 						}
@@ -69,6 +70,17 @@ export const Sidebar = () => {
 
 			{/* Footer actions */}
 			<div className="p-4 border-t border-gray-200 space-y-1">
+				<NavLink
+					to="/help"
+					className={({ isActive }) =>
+						`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+							isActive ? "bg-primary-50 text-primary-700" : "text-gray-700 hover:bg-gray-50"
+						}`
+					}
+				>
+					<QuestionMarkCircleIcon className="w-5 h-5 mr-3" />
+					Help & Guide
+				</NavLink>
 				<NavLink
 					to="/settings"
 					className={({ isActive }) =>

@@ -1,53 +1,19 @@
-import { useState, useEffect } from "react";
-import { analysisService, type CorrelationResult } from "@/services/analysisService";
-import { Card } from "@/components/common/Card";
-import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { 
     SparklesIcon, 
     ArrowTrendingUpIcon, 
     ArrowTrendingDownIcon,
     ExclamationTriangleIcon,
-    InformationCircleIcon
 } from "@heroicons/react/24/outline";
+import { Card } from "@/components/common/Card";
+import ReactMarkdown from 'react-markdown';
+import type { CorrelationResult } from "@/services/analysisService";
 
-export const PatternInsights = () => {
-    const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<{
-        correlations: CorrelationResult[];
-        aiInsights: string;
-    } | null>(null);
-    const [error, setError] = useState<string | null>(null);
+interface Props {
+    correlations: CorrelationResult[];
+    aiInsights: string;
+}
 
-    useEffect(() => {
-        const fetchInsights = async () => {
-            try {
-                setLoading(true);
-                const result = await analysisService.getPatterns();
-                setData(result);
-            } catch (err: any) {
-                setError("Failed to load health insights. Please ensure you have enough logged data.");
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchInsights();
-    }, []);
-
-    if (loading) return (
-        <div className="flex justify-center p-12">
-            <LoadingSpinner size="lg" />
-        </div>
-    );
-
-    if (error) return (
-        <div className="p-4 bg-amber-50 text-amber-700 rounded-lg border border-amber-100 flex items-center gap-3">
-            <InformationCircleIcon className="w-5 h-5" />
-            <p className="text-sm">{error}</p>
-        </div>
-    );
-
+export const PatternInsights = ({ correlations, aiInsights }: Props) => {
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -61,8 +27,21 @@ export const PatternInsights = () => {
                         <div className="p-2 bg-primary-100 rounded-lg shrink-0">
                             <SparklesIcon className="w-5 h-5 text-primary-600" />
                         </div>
-                        <div className="prose prose-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                            {data?.aiInsights}
+                        <div className="prose prose-sm prose-primary text-gray-700 max-w-none">
+                            {aiInsights ? (
+                                <ReactMarkdown 
+                                    components={{
+                                        p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>,
+                                        ul: ({children}) => <ul className="list-disc pl-4 space-y-1 mb-2">{children}</ul>,
+                                        li: ({children}) => <li className="text-gray-700">{children}</li>,
+                                        strong: ({children}) => <strong className="font-bold text-primary-900">{children}</strong>
+                                    }}
+                                >
+                                    {aiInsights}
+                                </ReactMarkdown>
+                            ) : (
+                                "No insights generated yet. Continue logging data to see AI analysis."
+                            )}
                         </div>
                     </div>
                 </Card>
@@ -72,7 +51,7 @@ export const PatternInsights = () => {
                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider px-1">
                         Statistical Correlations
                     </h3>
-                    {data?.correlations.length === 0 ? (
+                    {correlations.length === 0 ? (
                         <div className="p-8 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center">
                             <p className="text-sm text-gray-500">
                                 Not enough data yet to identify strong correlations. 
@@ -81,7 +60,7 @@ export const PatternInsights = () => {
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {data?.correlations.map((corr, idx) => (
+                            {correlations.map((corr, idx) => (
                                 <div key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4">
                                     <div className={`p-2 rounded-lg shrink-0 ${
                                         corr.type === 'trigger' ? 'bg-amber-50' : 

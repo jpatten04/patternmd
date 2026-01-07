@@ -4,45 +4,46 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# We use a capable but free model from Hugging Face
-# Mistral-7B or Llama-3.2-3B are excellent choices for serverless inference
-HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3"
+# Using a capable and available model for the chat completion endpoint
+HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
+HF_AI_MODEL = "meta-llama/Llama-3.2-3B-Instruct"
 HF_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
 
 def generate_health_insights(summary_text, correlation_results):
     """Generate natural language insights using Hugging Face Inference API"""
     
-    # Construct the prompt
-    prompt = f"<s>[INST] You are a helpful health assistant. Below is a summary of a user's health logs and some statistical correlations found in their data. \n\n"
-    prompt += "DATA SUMMARY:\n"
-    prompt += summary_text + "\n\n"
-    prompt += "STATISTICAL CORRELATIONS:\n"
-    for res in correlation_results:
-        prompt += f"- {res['description']}\n"
-    
-    prompt += "\nBased on this data, provide 3 concise, actionable insights or patterns you've noticed. Do not provide medical advice, just observations and suggestions for further tracking. Keep it professional but empathetic. [/INST]"
-
     if not HF_TOKEN:
         return "Insight generation is currently unavailable (API token missing). Please check your statistical correlations below."
 
+    # Construct the context for the AI
+    correlation_text = "\n".join([f"- {res['description']}" for res in correlation_results])
+    
     try:
         headers = {"Authorization": f"Bearer {HF_TOKEN}"}
         payload = {
-            "inputs": prompt,
-            "parameters": {
-                "max_new_tokens": 500,
-                "temperature": 0.7,
-                "top_p": 0.95,
-                "return_full_text": False
-            }
+            "model": HF_AI_MODEL,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a specialized health pattern analyst. Your goal is to provide 3 concise, actionable observations based on health logs. Use clear Markdown bullet points. Do not provide medical advice. Be professional, empathetic, and objective."
+                },
+                {
+                    "role": "user",
+                    "content": f"DATA SUMMARY:\n{summary_text}\n\nSTATISTICAL CORRELATIONS:\n{correlation_text}\n\nBased on this data, provide 3 concise insights or patterns as a bulleted list. Use **bolding** for key factors. Focus on possible triggers and lifestyle connections."
+                }
+            ],
+            "max_tokens": 500,
+            "temperature": 0.7,
+            "top_p": 0.95
         }
         
         response = requests.post(HF_API_URL, headers=headers, json=payload, timeout=20)
         
         if response.status_code == 200:
             result = response.json()
-            if isinstance(result, list) and len(result) > 0:
-                return result[0].get('generated_text', "Could not generate insights.")
+            # Chat completion format: result['choices'][0]['message']['content']
+            if 'choices' in result and len(result['choices']) > 0:
+                return result['choices'][0]['message']['content']
             return "Unexpected response format from AI service."
         elif response.status_code == 503:
             return "The AI model is currently loading on Hugging Face servers. Please try again in a few minutes."

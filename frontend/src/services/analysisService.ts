@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { ApiResponse } from "@/types";
+import type { ApiResponse, Correlation } from "@/types";
 
 export interface CorrelationResult {
 	type: "correlation" | "trigger";
@@ -12,6 +12,7 @@ export interface CorrelationResult {
 
 export interface PatternsResponse {
 	correlations: CorrelationResult[];
+	matrix: Correlation[];
 	aiInsights: string;
 }
 

@@ -18,20 +18,23 @@ def check_for_missed_doses(user):
         if not alert_settings.get('missedDoseAlerts', True):
             return
 
-        today = date.today()
+        now_utc = datetime.now(timezone.utc)
+        today_date = now_utc.date()
+        
         # Find active medications that are 'once daily'
         active_meds = Medication.query.filter_by(user_id=user.id, active=True).all()
         
         for med in active_meds:
             if 'daily' in med.frequency.lower():
-                # Check if there is a log for today
-                start_of_today = datetime.combine(today, datetime.min.time())
+                # Check if there is a log for today (UTC)
+                start_of_today = datetime.combine(today_date, datetime.min.time())
                 log_exists = MedicationLog.query.filter(
                     MedicationLog.medication_id == med.id,
                     MedicationLog.timestamp >= start_of_today
                 ).first()
                 
-                if not log_exists and datetime.now().hour >= 12: # If past noon and no log
+                # If past noon UTC and no log
+                if not log_exists and now_utc.hour >= 12: 
                     # Check if an alert already exists for today
                     existing_alert = Alert.query.filter(
                         Alert.user_id == user.id,
@@ -47,7 +50,7 @@ def check_for_missed_doses(user):
                             alert_type='medication',
                             message=f"Missed dose reminder: Have you taken your {med.name} today?",
                             severity='medium',
-                            timestamp=datetime.now(timezone.utc),
+                            timestamp=now_utc,
                             is_read=False
                         )
                         db.session.add(new_alert)

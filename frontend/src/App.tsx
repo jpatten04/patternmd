@@ -16,6 +16,7 @@ import { Alerts } from "@/pages/Alerts";
 import { Research } from "@/pages/Research";
 import { Reports } from "@/pages/Reports";
 import { Settings } from "@/pages/Settings";
+import { Help } from "@/pages/Help";
 import { Login } from "@/pages/Login";
 import { Register } from "@/pages/Register";
 
@@ -43,6 +44,7 @@ export const App = () => {
 							<Route path="research" element={<Research />} />
 							<Route path="reports" element={<Reports />} />
 							<Route path="settings" element={<Settings />} />
+							<Route path="help" element={<Help />} />
 						</Route>
 					</Route>
 

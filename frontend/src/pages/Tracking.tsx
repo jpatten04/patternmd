@@ -51,7 +51,7 @@ export const Tracking = () => {
 	const { foodLogs } = useFood(filters.dateRange?.startDate, filters.dateRange?.endDate);
 	const { activityLogs } = useActivity(filters.dateRange?.startDate, filters.dateRange?.endDate);
 	const { moodLogs } = useMood(filters.dateRange?.startDate, filters.dateRange?.endDate);
-	const { patterns, correlations, loading: patternsLoading } = usePatterns();
+	const { correlations, matrix, aiInsights, loading: patternsLoading } = usePatterns();
 
 	const isLoading = symptomsLoading || patternsLoading;
 
@@ -122,9 +122,28 @@ export const Tracking = () => {
 
 	const symptomNames = useMemo(() => Array.from(new Set(symptoms.map((s) => s.symptomName))), [symptoms]);
 
+	// Summary Statistics
+	const stats = useMemo(() => {
+		const avgSeverity =
+			filteredSymptoms.length > 0
+				? filteredSymptoms.reduce((acc, s) => acc + s.severity, 0) / filteredSymptoms.length
+				: 0;
+
+		const totalMedLogs = medicationLogs.length;
+		const medsTaken = medicationLogs.filter((m) => m.taken).length;
+		const adherence = totalMedLogs > 0 ? (medsTaken / totalMedLogs) * 100 : 0;
+
+		return {
+			avgSeverity: avgSeverity.toFixed(1),
+			adherence: adherence.toFixed(0),
+			logCount: timelineItems.length,
+		};
+	}, [filteredSymptoms, medicationLogs, timelineItems]);
+
 	const tabs = [
 		{ name: "Overview", icon: Squares2X2Icon },
 		{ name: "Symptoms", icon: ChartBarIcon },
+		{ name: "Correlations", icon: LinkIcon },
 		{ name: "Patterns", icon: LinkIcon },
 		{ name: "Timeline", icon: ClockIcon },
 	];
@@ -180,17 +199,89 @@ export const Tracking = () => {
 				</TabList>
 				<TabPanels>
 					<TabPanel className="space-y-6">
-						<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-							<Card title="Symptom Overview">
-								<SymptomChart data={filteredSymptoms} height={300} />
-							</Card>
-							<Card title="Variable Correlations">
-								<CorrelationMatrix correlations={correlations} />
-							</Card>
+						{/* Key Metrics Row */}
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+							<div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+								<p className="text-xs font-medium text-gray-500 uppercase">Avg. Severity</p>
+								<p className="text-2xl font-bold text-gray-900">{stats.avgSeverity}</p>
+							</div>
+							<div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+								<p className="text-xs font-medium text-gray-500 uppercase">Medication Adherence</p>
+								<p className="text-2xl font-bold text-gray-900">{stats.adherence}%</p>
+							</div>
+							<div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+								<p className="text-xs font-medium text-gray-500 uppercase">Total Observations</p>
+								<p className="text-2xl font-bold text-gray-900">{stats.logCount}</p>
+							</div>
 						</div>
+
+						<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+							<div className="lg:col-span-2">
+								<Card title="Recent Symptom Trends">
+									<SymptomChart data={filteredSymptoms.slice(-20)} height={300} />
+								</Card>
+							</div>
+							<div className="space-y-6">
+								<Card title="Recent Activity">
+									<div className="flow-root">
+										<ul role="list" className="-mb-8">
+											{timelineItems.slice(0, 5).map((item, itemIdx) => (
+												<li key={item.id}>
+													<div className="relative pb-8">
+														{itemIdx !== 4 ? (
+															<span
+																className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+																aria-hidden="true"
+															/>
+														) : null}
+														<div className="relative flex space-x-3">
+															<div>
+																<span
+																	className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${
+																		item.type === "symptom"
+																			? "bg-red-50"
+																			: item.type === "medication"
+																				? "bg-blue-50"
+																				: "bg-gray-50"
+																	}`}
+																>
+																	<div
+																		className={`h-2 w-2 rounded-full ${
+																			item.type === "symptom"
+																				? "bg-red-500"
+																				: item.type === "medication"
+																					? "bg-blue-500"
+																					: "bg-gray-500"
+																		}`}
+																	/>
+																</span>
+															</div>
+															<div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+																<div>
+																	<p className="text-xs font-semibold text-gray-900">
+																		{item.title}
+																	</p>
+																</div>
+																<div className="whitespace-nowrap text-right text-[10px] text-gray-500">
+																	{format(parseISO(item.timestamp), "MMM d, HH:mm")}
+																</div>
+															</div>
+														</div>
+													</div>
+												</li>
+											))}
+										</ul>
+									</div>
+								</Card>
+							</div>
+						</div>
+
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-							{patterns.slice(0, 3).map((pattern) => (
-								<PatternCard key={pattern.id} pattern={pattern} />
+							{correlations.slice(0, 3).map((corr, idx) => (
+								<div key={idx} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+									<p className="text-xs font-bold text-primary-600 uppercase mb-1">{corr.factor}</p>
+									<p className="text-sm text-gray-700 line-clamp-2">{corr.description}</p>
+								</div>
 							))}
 						</div>
 					</TabPanel>
@@ -200,12 +291,37 @@ export const Tracking = () => {
 						</Card>
 					</TabPanel>
 					<TabPanel className="space-y-6">
-						<PatternInsights />
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							{patterns.length > 0 ? (
-								patterns.map((pattern) => <PatternCard key={pattern.id} pattern={pattern} />)
-							) : null}
-						</div>
+						<Card title="Variable Correlation Matrix">
+							<div className="mb-6 bg-blue-50 border border-blue-100 p-4 rounded-lg">
+								<h3 className="text-blue-800 font-semibold mb-2 flex items-center gap-2">
+									<LinkIcon className="w-5 h-5" />
+									How to Read This Matrix
+								</h3>
+								<div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-blue-700">
+									<div>
+										<p className="font-bold mb-1">🟢 Positive (+0.3 to +1.0)</p>
+										<p>Factors move together. e.g., High humidity correlates with increased pain.</p>
+									</div>
+									<div>
+										<p className="font-bold mb-1">🔴 Negative (-0.3 to -1.0)</p>
+										<p>Factors move in opposite directions. e.g., Taking meds correlates with lower symptoms.</p>
+									</div>
+									<div>
+										<p className="font-bold mb-1">⚪ Neutral (-0.3 to +0.3)</p>
+										<p>No clear statistical relationship found between these two variables.</p>
+									</div>
+								</div>
+								<p className="mt-3 text-xs text-blue-600 italic">
+									Note: Values are Pearson correlation coefficients. 1.0 is a perfect match, 0 is no relation, and -1.0 is a perfect opposite.
+								</p>
+							</div>
+							<div className="bg-white p-4 rounded-xl border border-gray-100 shadow-inner overflow-hidden">
+								<CorrelationMatrix correlations={matrix} />
+							</div>
+						</Card>
+					</TabPanel>
+					<TabPanel className="space-y-6">
+						<PatternInsights correlations={correlations} aiInsights={aiInsights} />
 					</TabPanel>
 					<TabPanel>
 						<Card title="Comprehensive Timeline">
