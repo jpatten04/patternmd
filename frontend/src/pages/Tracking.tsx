@@ -19,6 +19,7 @@ import { SymptomChart } from "@/components/tracking/SymptomChart";
 import { PatternCard } from "@/components/tracking/PatternCard";
 import { TimelineView } from "@/components/tracking/TimelineView";
 import { CorrelationMatrix } from "@/components/tracking/CorrelationMatrix";
+import { PatternInsights } from "@/components/tracking/PatternInsights";
 
 // Hooks
 import { useSymptoms } from "@/hooks/useSymptoms";
@@ -198,15 +199,12 @@ export const Tracking = () => {
 							<SymptomChart data={filteredSymptoms} height={500} />
 						</Card>
 					</TabPanel>
-					<TabPanel>
+					<TabPanel className="space-y-6">
+						<PatternInsights />
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							{patterns.length > 0 ? (
 								patterns.map((pattern) => <PatternCard key={pattern.id} pattern={pattern} />)
-							) : (
-								<div className="col-span-full text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
-									No patterns discovered yet. Keep logging to see insights!
-								</div>
-							)}
+							) : null}
 						</div>
 					</TabPanel>
 					<TabPanel>

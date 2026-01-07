@@ -8,6 +8,7 @@ from .quick_log import quick_log_bp
 from .alerts import alerts_bp
 from .environment import environment_bp
 from .users import users_bp
+from .analysis import analysis_bp
 
 __all__ = [
     'auth_bp',
@@ -19,5 +20,6 @@ __all__ = [
     'quick_log_bp',
     'alerts_bp',
     'environment_bp',
-    'users_bp'
+    'users_bp',
+    'analysis_bp'
 ]

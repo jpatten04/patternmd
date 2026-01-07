@@ -55,15 +55,10 @@
 - ✅ **Lazy Refresh & Rate Limiting**
 
 ### PHASE 4: PATTERN ANALYSIS & AI INSIGHTS
-- [ ] **Advanced Analysis Service**
-    - **File: `backend/app/services/pattern_analysis.py`**
-    - Use statistical methods to find correlations and triggers.
-- [ ] **AI Insight Generation**
-    - **File: `backend/app/services/ai_service.py`**
-    - Integration with Ollama or Gemini for natural language summaries.
-- [ ] **Analysis Routes**
-    - **File: `backend/app/routes/analysis.py`**
-    - Endpoints for patterns, correlations, and predictions.
+- ✅ **Advanced Analysis Service** - Statistical correlation engine for symptoms vs factors.
+- ✅ **AI Insight Generation** - Integration with Hugging Face (Mistral-7B) for NL summaries.
+- ✅ **Analysis Routes** - Backend endpoints for pattern discovery.
+- ✅ **Analysis UI** - New Insights dashboard in the Tracking page.
 
 ### PHASE 5: ALERTS & NOTIFICATIONS SYSTEM
 - ✅ **Backend Alerts Routes Enhancement**
